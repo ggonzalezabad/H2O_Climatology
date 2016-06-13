@@ -60,7 +60,7 @@ SUBROUTINE create_he5_file ( he5file, sensor, year, nlon, nlat, nlev )
   ! ID number for swath (required for writing to swath)
   REAL (KIND=r4), DIMENSION (nlon)           :: longitudes
   REAL (KIND=r4), DIMENSION (nlat)           :: latitudes
-  REAL (KIND=r8), DIMENSION (nlon,nlat,nlev) :: H2O8
+  REAL (KIND=r8), DIMENSION (nlon,nlat,nlev) :: H2O8, H2O8_sd
   REAL (KIND=r8), DIMENSION (nlon,nlat,nlev) :: Temperature8
   REAL (KIND=r8), DIMENSION (nlon,nlat,nlev) :: Psurface8
   REAL (KIND=r4), DIMENSION (nlon,nlat,nlev) :: gcdatar4
@@ -153,8 +153,10 @@ SUBROUTINE create_he5_file ( he5file, sensor, year, nlon, nlat, nlev )
               TRIM(ADJUSTL(he5file))
      CALL read_gchem_ascii_file  ( &
           TRIM(ADJUSTL(ascii_name)), nlon, nlat, nlev, &
-          longitudes(1:nlon), latitudes(1:nlat),               &
-          H2O8(1:nlon,1:nlat,1:nlev), Temperature8(1:nlon,1:nlat,1:nlev),         &
+          longitudes(1:nlon), latitudes(1:nlat),       &
+          H2O8(1:nlon,1:nlat,1:nlev),                  &
+          H2O8_sd(1:nlon,1:nlat,1:nlev),               &
+          Temperature8(1:nlon,1:nlat,1:nlev),          &
           Psurface8(1:nlon,1:nlat,1:nlev))
      
      wrtdatafields: DO idf = 1, ndf
@@ -163,6 +165,9 @@ SUBROUTINE create_he5_file ( he5file, sensor, year, nlon, nlat, nlev )
         CASE ("VMRH2O             ")
            gcdatar4(1:nlon,1:nlat,1:nlev) = &
                 REAL( H2O8, KIND=r4 ) ! VMR
+        CASE ("VMRH2O_sd          ")
+           gcdatar4(1:nlon,1:nlat,1:nlev) = &
+                REAL( H2O8_sd, KIND=r4 ) ! VMR
         CASE ("SurfacePressure    ")
            gcdatar4(1:nlon,1:nlat,1:nlev) = &
                 REAL( Psurface8, KIND=r4 ) ! hPa
@@ -212,7 +217,8 @@ END SUBROUTINE create_he5_file
 
 SUBROUTINE  read_gchem_ascii_file  ( ascii_name, nlon, nlat, nlev, &
                                      longitudes, latitudes,        &
-                                     H2O, Temperature, Psurface )
+                                     H2O, H2O_sd, Temperature,     &
+                                     Psurface )
 
   USE GEOSChem_Helen_he5_module
   IMPLICIT NONE
@@ -228,7 +234,7 @@ SUBROUTINE  read_gchem_ascii_file  ( ascii_name, nlon, nlat, nlev, &
   REAL (KIND=r4), INTENT (OUT), DIMENSION (nlon)           :: longitudes
   REAL (KIND=r4), INTENT (OUT), DIMENSION (nlat)           :: latitudes
   REAL (KIND=r8), INTENT (OUT), DIMENSION (nlon,nlat)      :: Psurface
-  REAL (KIND=r8), INTENT (OUT), DIMENSION (nlon,nlat,nlev) :: H2O, Temperature
+  REAL (KIND=r8), INTENT (OUT), DIMENSION (nlon,nlat,nlev) :: H2O, H2O_sd, Temperature
   ! ------------------------------
   ! Local variables and parameters
   ! ------------------------------
@@ -245,6 +251,7 @@ SUBROUTINE  read_gchem_ascii_file  ( ascii_name, nlon, nlat, nlev, &
      DO ilat = 1, nlat
         READ (UNIT=aunit, FMT=*) longitudes(ilon), latitudes(ilat), Psurface(ilon,ilat)
         READ (UNIT=aunit, FMT=*) H2O(ilon,ilat,1:nlev)
+        READ (UNIT=aunit, FMT=*) H2O_sd(ilon,ilat,1:nlev)
         READ (UNIT=aunit, FMT=*) Temperature(ilon,ilat,1:nlev)
      END DO
   END DO

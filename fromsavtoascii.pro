@@ -27,6 +27,8 @@ FOR iyear = 0, N_ELEMENTS(years)-1 DO BEGIN
                 PRINTF, LUN, lon[ilon], lat[ilat], psurface[imonth,ilon,ilat]
                 ; Print H2O to file
                 PRINTF, LUN, h2ovmr[imonth,ilon,ilat,0:46],      FORMAT = '(47(1x,E13.5))'
+                ; Print H2O standard deviation to file
+                PRINTF, LUN, h2ovmr_sd[imonth,ilon,ilat,0:46],   FORMAT = '(47(1x,E13.5))'
                 ; Print Temperature to file
                 PRINTF, LUN, TEMPERATURE[imonth,ilon,ilat,0:46], FORMAT = '(47(1x,E13.5))'
 

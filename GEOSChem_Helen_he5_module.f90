@@ -62,7 +62,7 @@ MODULE GEOSChem_Helen_he5_module
   ! ----------------------------------------------
   ! Number of data and geolocation fields in swath
   ! ----------------------------------------------
-  INTEGER, PARAMETER :: ndf = 3, ngf = 2
+  INTEGER, PARAMETER :: ndf = 4, ngf = 2
 
   ! ------------------------------
   ! Names of Data Fields in Swaths
@@ -89,26 +89,29 @@ MODULE GEOSChem_Helen_he5_module
   ! -----------------------------------------------
   ! Short-Names of Data Fields (part of file names)
   ! -----------------------------------------------
-  CHARACTER (LEN=4), DIMENSION (ndf), PARAMETER :: ShortDataFieldNames = (/ &
-       "H2O_", &
-       "PSrf", &
-       "Temp"   /)
+  CHARACTER (LEN=6), DIMENSION (ndf), PARAMETER :: ShortDataFieldNames = (/ &
+       "H2O_  ", &
+       "H2O_sd", &
+       "PSrf  ", &
+       "Temp  "   /)
 
   ! ------------------------------
   ! Names of Data Fields in Swaths
   ! ------------------------------
   CHARACTER (LEN=19), DIMENSION (ndf), PARAMETER :: DataFieldNames = (/ &
-       "VMRH2O             ",  &
-       "SurfacePressure    ",  &
-       "TemperatureProfile "    /)
+       "VMRH2O             ", &
+       "VMRH2O_sd          ", &
+       "SurfacePressure    ", &
+       "TemperatureProfile "   /)
 
   ! ------------------------------
   ! Units of Data Fields in Swaths
   ! ------------------------------
   CHARACTER (LEN=3), DIMENSION (ndf), PARAMETER :: DataFieldUnits = (/ &
-       "ppb",  &
-       "hPa",  &
-       "K  "    /) 
+       "ppb", &
+       "ppb", &
+       "hPa", &
+       "K  "   /) 
  
   ! ------------------------------
   ! Units of Data Fields in Swaths
@@ -116,20 +119,23 @@ MODULE GEOSChem_Helen_he5_module
   REAL (KIND=r4), DIMENSION (ndf), PARAMETER :: ScaleFactors = (/ &
        1.0E+04_r4,  &
        1.0E-00_r4,  &
+       1.0E-00_r4,  &
        1.0E-00_r4   /) 
  
   ! ------------------------------
   ! Titles of Data Fields in Swaths
   ! ------------------------------
-  CHARACTER (LEN=25), DIMENSION (ndf), PARAMETER :: DataFieldTitles = (/ &
-       "Water Volume Mixing Ratio",  &
-       "Surface Pressure         ",  &
-       "Temperature Profile      "   /)
+  CHARACTER (LEN=44), DIMENSION (ndf), PARAMETER :: DataFieldTitles = (/ &
+       "Water Volume Mixing Ratio                   ", &
+       "Water Volume Mixing Ratio Standard Deviation", &
+       "Surface Pressure                            ", &
+       "Temperature Profile                         "  /)
 
   ! ------------------------------
   ! Names of Data Provider
   ! ------------------------------
   CHARACTER (LEN=10), DIMENSION (ndf), PARAMETER :: DataProvider = (/ &
+       "Helen Wang",   &
        "Helen Wang",   &
        "Helen Wang",   &
        "Helen Wang"   /)
@@ -140,6 +146,7 @@ MODULE GEOSChem_Helen_he5_module
   CHARACTER (LEN=12), DIMENSION (ndf) :: TimeOfDay = (/ &
        "1300h-1400h",  &
        "1300h-1400h",  &
+       "1300h-1400h",  &
        "1300h-1400h"    /)
 
   ! ---------------------------
@@ -148,12 +155,14 @@ MODULE GEOSChem_Helen_he5_module
   CHARACTER (LEN=2), DIMENSION (ndf), PARAMETER :: MERRAVersion = (/ &
        "02",  &
        "02",  &
+       "02",  &
        "02"    /)
 
   ! -----------------------------------
   ! Data of production GChem Simulation
   ! -----------------------------------
   CHARACTER (LEN=11), DIMENSION (ndf), PARAMETER :: DateOfProduction = (/ &
+       "2015-06-30",  &
        "2015-06-30",  &
        "2015-06-30",  &
        "2015-06-30"    /)

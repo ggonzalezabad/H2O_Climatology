@@ -14,9 +14,10 @@ miss_val = -1.0e-30
 miuh2o = 0.018 & miudry = 0.029
 
 ; Create variables to hold data
-psurface = FLTARR(12,nlon,nlat)
+psurface    = FLTARR(12,nlon,nlat)
 temperature = FLTARR(12,nlon,nlat,47)
-h2ovmr = FLTARR(12,nlon,nlat,47)
+h2ovmr      = FLTARR(12,nlon,nlat,47)
+h2ovmr_sd   = FLTARR(12,nlon,nlat,47)
 
 ; Loop over each one of the files
 FOR ifile = 0, 11 DO BEGIN
@@ -44,6 +45,11 @@ FOR ifile = 0, 11 DO BEGIN
    ; Convert qv_merra to vmr_merra
    dummy = (miuh2o/miudry) * (1.0d0 - qv_merra) / qv_merra
    vmr_merra = 1.0d / ( 1.0d + dummy) * 1e9 ; [ppb]
+
+   ; Work out standard deviation using variance
+   sd_qv_merra = SQRT(var_qv_merra)
+   dummy = (miuh2o/miudry) * (1.0d0 - sd_qv_merra) / sd_qv_merra
+   vmr_sd_merra = 1.0d / ( 1.0d + dummy) * 1e9 ; [ppb]
 
    ; Loop over latitudes
    FOR ilat = 0, nlat-1 DO BEGIN
@@ -81,7 +87,9 @@ FOR ifile = 0, 11 DO BEGIN
          ENDIF
          
          ; Interpolate vmr_merra.         
-         h2ovmr[ifile,ilon,ilat,*] = INTERPOL(vmr_merra[jj,ii,*],levs_merra,pcenter)
+         h2ovmr[ifile,ilon,ilat,*]    = INTERPOL(vmr_merra[jj,ii,*],levs_merra,pcenter)
+         h2ovmr_sd[ifile,ilon,ilat,*] = INTERPOL(vmr_sd_merra[jj,ii,*],levs_merra,pcenter)
+
          ; If they are /Nan values in h2ovmr[ifile,ilon,ilat,*]
          dummy = WHERE(FINITE(h2ovmr[ifile,ilon,ilat,*], /Nan), count)
          IF (count GE 1) THEN BEGIN
@@ -93,6 +101,19 @@ FOR ifile = 0, 11 DO BEGIN
             ENDFOR
             h2ovmr[ifile,ilon,ilat,dummy] = lower
          ENDIF
+
+         ; If they are /Nan values in h2ovmr_sd[ifile,ilon,ilat,*]
+         dummy = WHERE(FINITE(h2ovmr_sd[ifile,ilon,ilat,*], /Nan), count)
+         IF (count GE 1) THEN BEGIN
+            ; Find non NAN water VMR closest to surface
+            FOR ilev = 0, 46 DO BEGIN
+               IF (FINITE(h2ovmr_sd[ifile,ilon,ilat,ilev], /NAN)) THEN CONTINUE
+               lower = h2ovmr_sd[ifile,ilon,ilat,ilev]
+               BREAK
+            ENDFOR
+            h2ovmr_sd[ifile,ilon,ilat,dummy] = lower
+         ENDIF
+
       ENDFOR ; End longitudes loop
    ENDFOR ; End latitudes loop
 
@@ -100,11 +121,13 @@ ENDFOR ; End files (month loop)
 
 dummy = WHERE(FINITE(temperature, /NAN), COUNT) & IF (count GE 1) THEN temperature[dummy] = miss_val
 dummy = WHERE(FINITE(h2ovmr, /NAN), COUNT) & IF (count GE 1) THEN h2ovmr[dummy] = miss_val
+dummy = WHERE(FINITE(h2ovmr_sd, /NAN), COUNT) & IF (count GE 1) THEN h2ovmr_sd[dummy] = miss_val
 
 ; Convert lon & lat grid to center
 lon = lon + (0.5*5.0/8.0) & lat = lat + ( 0.5*1.0/2.0)
 
-SAVE, lon, lat, nlon, nlat, psurface, temperature, h2ovmr, filename = 'MERRA2_H2O.sav'
+SAVE, lon, lat, nlon, nlat, psurface, temperature, h2ovmr, h2ovmr_sd, $
+      filename = 'MERRA2_H2O.sav'
 
 endall:
 END
